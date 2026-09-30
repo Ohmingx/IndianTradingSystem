@@ -2,7 +2,11 @@ param(
     [string]$LeanRoot = "D:\LeanT\Lean",
     [int]$TimeoutSeconds = 600,
     [string]$AlgoName = "sma_crossover_algorithm.py",
-    [string]$AlgoTypeName = "SmaCrossoverAlgorithm"
+    [string]$AlgoTypeName = "SmaCrossoverAlgorithm",
+    [string]$RuntimeConfigPath = "",
+    [string]$ExecutionConfigPath = "",
+    [string]$RunnerTranscriptPath = "",
+    [string]$RunnerErrorPath = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -25,6 +29,51 @@ $BackupConfigPath = Join-Path $LauncherDir "config.backup.json"
 
 $LeanDataDir = Join-Path $LeanRoot "Data"
 $LogPath = Join-Path $LauncherDir "results\log.txt"
+$RuntimeMode = -not [string]::IsNullOrWhiteSpace($RuntimeConfigPath)
+
+if ($RuntimeMode) {
+    if ([string]::IsNullOrWhiteSpace($ExecutionConfigPath)) {
+        throw "ExecutionConfigPath is required with RuntimeConfigPath."
+    }
+
+    $RuntimeRoot = [System.IO.Path]::GetFullPath((Join-Path $ProjectRoot ".runtime"))
+    $RuntimeRootPrefix = $RuntimeRoot + [System.IO.Path]::DirectorySeparatorChar
+    $RuntimeConfigPath = [System.IO.Path]::GetFullPath($RuntimeConfigPath)
+    $ExecutionConfigPath = [System.IO.Path]::GetFullPath($ExecutionConfigPath)
+    $RunnerTranscriptPath = [System.IO.Path]::GetFullPath($RunnerTranscriptPath)
+    $RunnerErrorPath = [System.IO.Path]::GetFullPath($RunnerErrorPath)
+    if (-not $RuntimeConfigPath.StartsWith($RuntimeRootPrefix, [System.StringComparison]::OrdinalIgnoreCase) -or
+        -not $ExecutionConfigPath.StartsWith($RuntimeRootPrefix, [System.StringComparison]::OrdinalIgnoreCase) -or
+        -not $RunnerTranscriptPath.StartsWith($RuntimeRootPrefix, [System.StringComparison]::OrdinalIgnoreCase) -or
+        -not $RunnerErrorPath.StartsWith($RuntimeRootPrefix, [System.StringComparison]::OrdinalIgnoreCase) -or
+        [System.IO.Path]::GetDirectoryName($RuntimeConfigPath) -ne [System.IO.Path]::GetDirectoryName($ExecutionConfigPath) -or
+        [System.IO.Path]::GetDirectoryName($RuntimeConfigPath) -ne [System.IO.Path]::GetDirectoryName($RunnerTranscriptPath) -or
+        [System.IO.Path]::GetDirectoryName($RuntimeConfigPath) -ne [System.IO.Path]::GetDirectoryName($RunnerErrorPath)) {
+        throw "Runtime configuration paths must share one directory inside .runtime."
+    }
+    if (-not (Test-Path -LiteralPath $RuntimeConfigPath -PathType Leaf) -or
+        -not (Test-Path -LiteralPath $ExecutionConfigPath -PathType Leaf)) {
+        throw "Runtime or execution configuration file is missing."
+    }
+
+    try {
+        $RuntimeConfig = Get-Content -LiteralPath $RuntimeConfigPath -Raw | ConvertFrom-Json -ErrorAction Stop
+    }
+    catch {
+        throw "Runtime configuration is malformed JSON."
+    }
+    $AllowedSymbols = @("RELIANCE.NS", "TCS.NS", "INFY.NS", "HDFCBANK.NS", "ICICIBANK.NS", "WIPRO.NS")
+    if ($RuntimeConfig.strategy -ne "sma_crossover" -or
+        @($RuntimeConfig.symbols | Where-Object { $_ -notin $AllowedSymbols -or $_ -eq "WIPRO.NS" }).Count -gt 0) {
+        throw "Runtime SMA configuration contains an unsupported strategy or symbol."
+    }
+
+    $AlgoPath = Join-Path $ProjectRoot "backend\lean_runtime\runtime_algorithm.py"
+    $AlgoTypeName = "RuntimeSmaCrossoverAlgorithm"
+    $TempConfigPath = $ExecutionConfigPath
+    $BackupConfigPath = Join-Path ([System.IO.Path]::GetDirectoryName($RuntimeConfigPath)) "config.backup.json"
+    $env:INDIAN_TRADING_RUNTIME_CONFIG = $RuntimeConfigPath
+}
 
 # ------------------------------------------------------------
 # 2. Validate required files
@@ -54,6 +103,9 @@ $ExpectedZips = @(
     "hdfcbank.ns.zip",
     "icicibank.ns.zip"
 )
+if ($RuntimeMode) {
+    $ExpectedZips = @($RuntimeConfig.symbols | ForEach-Object { ($_.ToLowerInvariant() + ".zip") })
+}
 
 $DailyDataDir = Join-Path $DataDir "equity\india\daily"
 
@@ -133,7 +185,18 @@ if (-not (Test-Path "$DataDir\symbol-properties")) {
     Copy-Item "$LeanDataDir\symbol-properties" "$DataDir\symbol-properties" -Recurse
 }
 
-$ConfigJson | ConvertTo-Json -Depth 10 | Out-File -FilePath $TempConfigPath -Encoding UTF8
+if ($RuntimeMode) {
+    $RunConfig = Get-Content -LiteralPath $ExecutionConfigPath -Raw | ConvertFrom-Json -ErrorAction Stop
+    if ($RunConfig."algorithm-location" -ne $AlgoPath -or
+        $RunConfig."algorithm-type-name" -ne $AlgoTypeName -or
+        $RunConfig."data-folder" -ne $DataDir) {
+        throw "Execution config does not match the fixed runtime adapter configuration."
+    }
+    $ConfigJson = $RunConfig
+}
+else {
+    $ConfigJson | ConvertTo-Json -Depth 10 | Out-File -FilePath $TempConfigPath -Encoding UTF8
+}
 
 Write-Host "Generated config: $TempConfigPath"
 Write-Host ""
@@ -169,16 +232,30 @@ $Process = $null
 
 try {
 
+    if ($RuntimeMode) {
+        Start-Transcript -Path $RunnerTranscriptPath -Force | Out-Null
+    }
+
     Write-Host "Starting LEAN..."
     Write-Host "Timeout: $TimeoutSeconds seconds"
     Write-Host ""
 
+    $RunStartedAt = Get-Date
     $StartInfo = New-Object System.Diagnostics.ProcessStartInfo
 
     $StartInfo.FileName = $LauncherExe
     $StartInfo.WorkingDirectory = $LauncherDir
     $StartInfo.UseShellExecute = $false
     $StartInfo.CreateNoWindow = $true
+
+    if ($RuntimeMode -and (Test-Path $LogPath)) {
+        try {
+            [System.IO.File]::WriteAllText($LogPath, "")
+        }
+        catch {
+            throw "Cannot start LEAN because its shared engine log is still in use."
+        }
+    }
 
     $Process = New-Object System.Diagnostics.Process
     $Process.StartInfo = $StartInfo
@@ -188,6 +265,13 @@ try {
     Write-Host ""
 
     [void]$Process.Start()
+
+    if ($RuntimeMode) {
+        $ProcessRecordPath = Join-Path ([System.IO.Path]::GetDirectoryName($RuntimeConfigPath)) "lean_process.json"
+        $ProcessRecord = @{ processId = $Process.Id; startedAt = $RunStartedAt.ToUniversalTime().ToString("o") } |
+            ConvertTo-Json -Compress
+        [System.IO.File]::WriteAllText($ProcessRecordPath, $ProcessRecord, [System.Text.UTF8Encoding]::new($false))
+    }
 
     # --------------------------------------------------------
     # Monitor LEAN's log for successful completion.
@@ -206,9 +290,14 @@ try {
 
         $LogContent = Get-Content $LogPath -Raw
 
-        if ($LogContent -match "Analysis Completed and Results Posted") {
+        if ((Get-Item $LogPath).LastWriteTime -gt $RunStartedAt -and
+            $LogContent -match "Analysis Completed and Results Posted") {
             $Completed = $true
             break
+        }
+
+        if ($RuntimeMode -and $Process.HasExited) {
+            throw "LEAN launcher exited before reporting completion (exit code $($Process.ExitCode))."
         }
     }
 
@@ -220,7 +309,7 @@ try {
 
         if ($Process -and -not $Process.HasExited) {
             try {
-                $Process.Kill($true)
+                $Process.Kill()
                 $Process.WaitForExit(5000)
             }
             catch {
@@ -241,7 +330,8 @@ try {
     # Display algorithm log output
     # --------------------------------------------------------
 
-    $AlgorithmLogPath = Get-ChildItem -Path (Join-Path $LauncherDir "results") -Filter "*-log.txt" |
+    $AlgorithmLogFilter = if ($RuntimeMode) { "$AlgoTypeName-log.txt" } else { "*-log.txt" }
+    $AlgorithmLogPath = Get-ChildItem -Path (Join-Path $LauncherDir "results") -Filter $AlgorithmLogFilter |
         Sort-Object LastWriteTime -Descending |
         Select-Object -First 1
 
@@ -259,7 +349,7 @@ try {
         Write-Host ""
         Write-Host "LEAN engine finished. Stopping launcher process..."
         try {
-            $Process.Kill($true)
+            $Process.Kill()
             $Process.WaitForExit(5000)
         }
         catch {
@@ -267,6 +357,16 @@ try {
         }
     }
 
+}
+catch {
+    if ($RuntimeMode -and $RunnerErrorPath) {
+        [System.IO.File]::WriteAllText(
+            $RunnerErrorPath,
+            ($_ | Out-String),
+            [System.Text.UTF8Encoding]::new($false)
+        )
+    }
+    throw
 }
 finally {
 
@@ -291,7 +391,7 @@ finally {
 
     if ($Process -and -not $Process.HasExited) {
         try {
-            $Process.Kill($true)
+            $Process.Kill()
             $Process.WaitForExit(5000)
         }
         catch {
@@ -299,6 +399,9 @@ finally {
     }
 
     Set-Location $ProjectRoot
+    if ($RuntimeMode) {
+        Stop-Transcript | Out-Null
+    }
 }
 
 Write-Host ""

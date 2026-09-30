@@ -1,0 +1,61 @@
+/* ==========================================================================
+   Unsupported Controls Panel — Coming Soon / Not Implemented
+   ========================================================================== */
+
+.quant-unsupported-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.quant-unsupported-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--space-3);
+}
+
+.quant-unsupported-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  background-color: var(--surface-2);
+  border: 1px dashed var(--border-default);
+  border-radius: var(--radius-sm);
+  opacity: 0.78;
+}
+
+.quant-unsupported-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.quant-unsupported-name {
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  color: var(--text-secondary);
+}
+
+.quant-unsupported-desc {
+  font-size: var(--text-2xs);
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+
+.quant-unsupported-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.quant-unsupported-cat {
+  font-size: var(--text-2xs);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-disabled);
+}

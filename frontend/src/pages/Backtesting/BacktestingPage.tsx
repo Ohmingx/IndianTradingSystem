@@ -1,36 +1,133 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   Sliders,
   Terminal,
   FileText,
   Play,
-  IndianRupee,
-  Shield,
   Info,
+  AlertTriangle,
+  RotateCcw,
+  CheckCircle2,
 } from 'lucide-react';
 import { Card, CardHeader, CardContent, CardFooter } from '../../components/common/Card';
 import { Badge } from '../../components/common/Badge';
 import { Button } from '../../components/common/Button';
+import {
+  AVAILABLE_STRATEGIES,
+  DEFAULT_BACKTEST_CONFIG,
+  VERIFIED_INDIAN_SYMBOLS,
+  type BacktestConfig,
+  type StrategyDefinition,
+} from '../../types/backtest';
+import { formatINR } from '../../utils/formatters';
+import {
+  BacktestApiError,
+  runBacktest,
+  type BacktestRunResponse,
+} from '../../api/backtestApi';
+import { StrategySelector } from './components/StrategySelector';
+import { SymbolSelector } from './components/SymbolSelector';
+import { PeriodPicker } from './components/PeriodPicker';
+import { CapitalInput } from './components/CapitalInput';
+import { BrokerageSelector } from './components/BrokerageSelector';
+import { SmaParameterForm } from './components/SmaParameterForm';
+import { UnsupportedControlsPanel } from './components/UnsupportedControlsPanel';
 import './BacktestingPage.css';
 
 type BacktestTab = 'configure' | 'execution' | 'results';
 
 export const BacktestingPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<BacktestTab>('configure');
+  const [config, setConfig] = useState<BacktestConfig>({ ...DEFAULT_BACKTEST_CONFIG });
+  const [runNotice, setRunNotice] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [lastRun, setLastRun] = useState<BacktestRunResponse | null>(null);
 
-  // Available Indian symbols verified in repository
-  const availableSymbols = [
-    { symbol: 'RELIANCE', name: 'Reliance Industries Ltd.', status: 'LEAN Ready' },
-    { symbol: 'TCS', name: 'Tata Consultancy Services Ltd.', status: 'LEAN Ready' },
-    { symbol: 'INFY', name: 'Infosys Ltd.', status: 'LEAN Ready' },
-    { symbol: 'HDFCBANK', name: 'HDFC Bank Ltd.', status: 'LEAN Ready' },
-    { symbol: 'ICICIBANK', name: 'ICICI Bank Ltd.', status: 'LEAN Ready' },
-    { symbol: 'WIPRO', name: 'Wipro Ltd.', status: 'LEAN Ready' },
-  ];
+  const selectedStrategy = useMemo(
+    () => AVAILABLE_STRATEGIES.find((s) => s.id === config.strategy) ?? AVAILABLE_STRATEGIES[0],
+    [config.strategy],
+  );
+
+  const isConfigValid =
+    config.symbols.length > 0 &&
+    config.fastPeriod < config.slowPeriod &&
+    config.startingCapital > 0 &&
+    config.startDate <= config.endDate;
+
+  const updateConfig = <K extends keyof BacktestConfig>(key: K, value: BacktestConfig[K]) => {
+    setConfig((prev) => ({ ...prev, [key]: value }));
+    setRunNotice(null);
+  };
+
+  const handleSelectStrategy = (strategy: StrategyDefinition) => {
+    setConfig((prev) => ({
+      ...prev,
+      strategy: strategy.id,
+      symbols: [...strategy.defaultSymbols],
+      positionWeight:
+        strategy.universeType === 'single-asset'
+          ? 1.0
+          : DEFAULT_BACKTEST_CONFIG.positionWeight,
+    }));
+    setRunNotice(null);
+  };
+
+  const handleToggleSymbol = (symbol: string) => {
+    setConfig((prev) => {
+      const exists = prev.symbols.includes(symbol);
+      return {
+        ...prev,
+        symbols: exists
+          ? prev.symbols.filter((s) => s !== symbol)
+          : [...prev.symbols, symbol],
+      };
+    });
+    setRunNotice(null);
+  };
+
+  const handleRunBacktest = async () => {
+    if (!isConfigValid) {
+      setRunNotice('Fix configuration errors before running a backtest.');
+      return;
+    }
+
+    setIsSubmitting(true);
+    setRunNotice('Submitting backtest to FastAPI… LEAN execution may take several minutes.');
+    setActiveTab('execution');
+
+    try {
+      const result = await runBacktest(config);
+      setLastRun(result);
+      if (result.status === 'completed') {
+        setRunNotice(
+          `Run ${result.runId} completed. Duration ${result.durationSeconds?.toFixed(1) ?? '—'}s. Detailed monitoring arrives in Phase 4.`,
+        );
+      } else {
+        setRunNotice(
+          `Run ${result.runId} ended with status ${result.status}: ${result.error?.message || result.message}`,
+        );
+      }
+    } catch (err) {
+      const message =
+        err instanceof BacktestApiError
+          ? `${err.code}: ${err.message}`
+          : err instanceof Error
+            ? err.message
+            : 'Unknown API error';
+      setLastRun(null);
+      setRunNotice(`Backtest request failed — ${message}`);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleReset = () => {
+    setConfig({ ...DEFAULT_BACKTEST_CONFIG });
+    setRunNotice(null);
+  };
 
   return (
     <div className="quant-backtesting-view">
-      {/* View Header */}
       <div className="quant-page-header">
         <div>
           <div className="quant-breadcrumb">
@@ -40,20 +137,26 @@ export const BacktestingPage: React.FC = () => {
           </div>
           <h1 className="heading-display">Backtesting Engine</h1>
           <p className="quant-page-desc">
-            Dual-SMA crossover strategy backtesting using QuantConnect LEAN on daily Indian equity bars.
+            Configure Indian equity backtests for QuantConnect LEAN. Phase 3 submits runs through
+            FastAPI using isolated runtime configuration.
           </p>
         </div>
 
-        {/* Sub-navigation tabs */}
-        <div className="quant-tab-strip">
+        <div className="quant-tab-strip" role="tablist" aria-label="Backtesting workflow">
           <button
+            type="button"
+            role="tab"
+            aria-selected={activeTab === 'configure'}
             className={`quant-tab-btn ${activeTab === 'configure' ? 'is-active' : ''}`}
             onClick={() => setActiveTab('configure')}
           >
             <Sliders size={15} />
-            <span>1. Configuration</span>
+            <span>1. Configure</span>
           </button>
           <button
+            type="button"
+            role="tab"
+            aria-selected={activeTab === 'execution'}
             className={`quant-tab-btn ${activeTab === 'execution' ? 'is-active' : ''}`}
             onClick={() => setActiveTab('execution')}
           >
@@ -61,6 +164,9 @@ export const BacktestingPage: React.FC = () => {
             <span>2. Execution</span>
           </button>
           <button
+            type="button"
+            role="tab"
+            aria-selected={activeTab === 'results'}
             className={`quant-tab-btn ${activeTab === 'results' ? 'is-active' : ''}`}
             onClick={() => setActiveTab('results')}
           >
@@ -70,135 +176,257 @@ export const BacktestingPage: React.FC = () => {
         </div>
       </div>
 
-      {/* TAB 1: CONFIGURE */}
+      {/* Workflow strip — visually connects the three stages */}
+      <div className="quant-workflow-strip">
+        <div className={`quant-workflow-step ${activeTab === 'configure' ? 'is-current' : 'is-done'}`}>
+          <span className="quant-workflow-index">01</span>
+          <div>
+            <span className="quant-workflow-label">Configure</span>
+            <span className="quant-workflow-meta">
+              {selectedStrategy.className} · {config.symbols.length} symbols
+            </span>
+          </div>
+        </div>
+        <div className="quant-workflow-connector" />
+        <div className={`quant-workflow-step ${activeTab === 'execution' ? 'is-current' : ''}`}>
+          <span className="quant-workflow-index">02</span>
+          <div>
+            <span className="quant-workflow-label">Execution</span>
+            <span className="quant-workflow-meta">LEAN process monitor · Phase 4</span>
+          </div>
+        </div>
+        <div className="quant-workflow-connector" />
+        <div className={`quant-workflow-step ${activeTab === 'results' ? 'is-current' : ''}`}>
+          <span className="quant-workflow-index">03</span>
+          <div>
+            <span className="quant-workflow-label">Results</span>
+            <span className="quant-workflow-meta">Equity · Trades · Fees · Phase 5</span>
+          </div>
+        </div>
+      </div>
+
       {activeTab === 'configure' && (
         <div className="quant-tab-content">
-          <div className="quant-config-grid">
-            {/* Strategy & Asset Selection */}
-            <Card variant="surface-1">
-              <CardHeader
-                title="Strategy & Assets"
-                subtitle="Select algorithmic logic and universe"
-                action={<Badge variant="profit" size="sm">Phase 2 Target</Badge>}
-              />
-              <CardContent className="quant-form-stack">
-                <div className="quant-form-group">
-                  <label className="caption-label">Algorithm Strategy</label>
-                  <div className="quant-mock-select">
-                    <span>SmaCrossoverAlgorithm (QCAlgorithm)</span>
-                    <Badge variant="neutral" size="sm">NSE Daily</Badge>
-                  </div>
-                  <span className="meta-text">
-                    5-stock dual moving average crossover with Zerodha brokerage model.
-                  </span>
-                </div>
-
-                <div className="quant-form-group">
-                  <div className="flex items-center justify-between">
-                    <label className="caption-label">Indian Equity Universe</label>
-                    <span className="meta-text">6 of 6 Available</span>
-                  </div>
-                  <div className="quant-symbol-selector">
-                    {availableSymbols.map((s) => (
-                      <div key={s.symbol} className="quant-symbol-row is-selected">
-                        <div className="flex items-center gap-2">
-                          <input type="checkbox" defaultChecked readOnly />
-                          <span className="quant-symbol-code font-mono">{s.symbol}</span>
-                          <span className="quant-symbol-name">{s.name}</span>
-                        </div>
-                        <Badge variant="profit" size="sm">Active</Badge>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Parameters & Capital */}
-            <div className="quant-config-col">
+          <div className="quant-config-layout">
+            <div className="quant-config-main">
               <Card variant="surface-1">
                 <CardHeader
-                  title="Capital & Portfolio Constraints"
-                  subtitle="Initial allocation and brokerage model"
+                  title="Strategy & Universe"
+                  subtitle="Select algorithm logic and Indian equity symbols"
+                  action={
+                    <Badge variant="info" size="sm">
+                      Phase 3 API
+                    </Badge>
+                  }
                 />
                 <CardContent className="quant-form-stack">
-                  <div className="quant-form-group">
-                    <label className="caption-label">Starting Cash (INR)</label>
-                    <div className="quant-input-addon">
-                      <IndianRupee size={15} className="text-muted" />
-                      <input
-                        type="text"
-                        className="quant-input font-mono"
-                        defaultValue="10,00,000"
-                        readOnly
-                      />
-                      <Badge variant="neutral" size="sm">INR</Badge>
-                    </div>
-                  </div>
+                  <StrategySelector
+                    selectedStrategyId={config.strategy}
+                    onSelectStrategy={handleSelectStrategy}
+                  />
+                  <SymbolSelector
+                    selectedSymbols={config.symbols}
+                    onToggleSymbol={handleToggleSymbol}
+                    onSelectAll={() =>
+                      updateConfig(
+                        'symbols',
+                        VERIFIED_INDIAN_SYMBOLS.map((s) => s.symbol),
+                      )
+                    }
+                    onSelect5Default={() =>
+                      updateConfig('symbols', [
+                        'RELIANCE.NS',
+                        'TCS.NS',
+                        'INFY.NS',
+                        'HDFCBANK.NS',
+                        'ICICIBANK.NS',
+                      ])
+                    }
+                    onClearAll={() => updateConfig('symbols', [])}
+                  />
+                </CardContent>
+              </Card>
 
-                  <div className="quant-form-group">
-                    <label className="caption-label">Brokerage Fee Model</label>
-                    <div className="quant-mock-select">
-                      <span>Zerodha Custom Brokerage Model</span>
-                      <Shield size={14} className="text-profit" />
-                    </div>
-                    <span className="meta-text">
-                      STT, turnover charges, GST, SEBI charges, stamp duty accurately modeled.
+              <Card variant="surface-1">
+                <CardHeader
+                  title="Period, Capital & Brokerage"
+                  subtitle="Verified Indian market assumptions"
+                />
+                <CardContent className="quant-form-stack">
+                  <PeriodPicker
+                    startDate={config.startDate}
+                    endDate={config.endDate}
+                    onChangeStartDate={(d) => updateConfig('startDate', d)}
+                    onChangeEndDate={(d) => updateConfig('endDate', d)}
+                  />
+                  <div className="quant-config-split">
+                    <CapitalInput
+                      capital={config.startingCapital}
+                      onChangeCapital={(v) => updateConfig('startingCapital', v)}
+                    />
+                    <BrokerageSelector selectedBroker={config.brokerage} />
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card variant="surface-1">
+                <CardHeader
+                  title="Strategy Parameters"
+                  subtitle="Parameters represented by the existing SMA implementation"
+                />
+                <CardContent>
+                  <SmaParameterForm
+                    fastPeriod={config.fastPeriod}
+                    slowPeriod={config.slowPeriod}
+                    positionWeight={config.positionWeight}
+                    symbolCount={config.symbols.length}
+                    onChangeFastPeriod={(v) => updateConfig('fastPeriod', v)}
+                    onChangeSlowPeriod={(v) => updateConfig('slowPeriod', v)}
+                    onChangePositionWeight={(v) => updateConfig('positionWeight', v)}
+                  />
+                </CardContent>
+              </Card>
+
+              <Card variant="surface-1">
+                <CardHeader
+                  title="Future Controls"
+                  subtitle="Visible for roadmap clarity — not actionable in Phase 2"
+                />
+                <CardContent>
+                  <UnsupportedControlsPanel />
+                </CardContent>
+              </Card>
+            </div>
+
+            <aside className="quant-config-rail">
+              <Card variant="surface-2" className="quant-config-summary-card">
+                <CardHeader
+                  title="Run Summary"
+                  subtitle="Typed payload for Phase 3 API"
+                  action={
+                    <Badge variant={isConfigValid ? 'profit' : 'warning'} size="sm">
+                      {isConfigValid ? 'Valid' : 'Incomplete'}
+                    </Badge>
+                  }
+                />
+                <CardContent className="quant-summary-stack">
+                  <div className="quant-summary-row">
+                    <span className="caption-label">Strategy</span>
+                    <span className="font-mono text-xs text-primary">{selectedStrategy.className}</span>
+                  </div>
+                  <div className="quant-summary-row">
+                    <span className="caption-label">Symbols</span>
+                    <span className="font-mono text-xs text-accent">
+                      {config.symbols.length > 0 ? config.symbols.join(', ') : '—'}
+                    </span>
+                  </div>
+                  <div className="quant-summary-row">
+                    <span className="caption-label">Period</span>
+                    <span className="font-mono text-xs text-primary">
+                      {config.startDate} → {config.endDate}
+                    </span>
+                  </div>
+                  <div className="quant-summary-row">
+                    <span className="caption-label">Capital</span>
+                    <span className="font-mono text-xs text-profit">
+                      {formatINR(config.startingCapital)}
+                    </span>
+                  </div>
+                  <div className="quant-summary-row">
+                    <span className="caption-label">Brokerage</span>
+                    <span className="font-mono text-xs text-primary">Zerodha</span>
+                  </div>
+                  <div className="quant-summary-row">
+                    <span className="caption-label">SMA / Weight</span>
+                    <span className="font-mono text-xs text-primary">
+                      {config.fastPeriod}/{config.slowPeriod} ·{' '}
+                      {(config.positionWeight * 100).toFixed(0)}%
                     </span>
                   </div>
 
-                  <div className="quant-form-group">
-                    <label className="caption-label">Moving Average Parameters</label>
-                    <div className="quant-params-inline">
-                      <div className="quant-param-box">
-                        <span className="meta-text">Fast SMA</span>
-                        <span className="font-mono text-md font-bold">20 Days</span>
-                      </div>
-                      <div className="quant-param-box">
-                        <span className="meta-text">Slow SMA</span>
-                        <span className="font-mono text-md font-bold">50 Days</span>
-                      </div>
-                      <div className="quant-param-box">
-                        <span className="meta-text">Weight / Asset</span>
-                        <span className="font-mono text-md font-bold">18% Max</span>
-                      </div>
-                    </div>
+                  <div className="quant-payload-preview">
+                    <span className="caption-label">API Payload Preview</span>
+                    <pre className="quant-payload-json font-mono">{JSON.stringify(config, null, 2)}</pre>
                   </div>
                 </CardContent>
-                <CardFooter>
-                  <span className="meta-text">Immutable canonical code; runtime config will be injected in Phase 3.</span>
+                <CardFooter className="quant-run-footer">
+                  <Button
+                    variant="subtle"
+                    size="sm"
+                    icon={<RotateCcw size={13} />}
+                    onClick={handleReset}
+                  >
+                    Reset Defaults
+                  </Button>
                   <Button
                     variant="primary"
-                    size="md"
-                    icon={<Play size={14} />}
-                    onClick={() => setActiveTab('execution')}
+                    size="lg"
+                    icon={<Play size={15} />}
+                    disabled={!isConfigValid || isSubmitting}
+                    isLoading={isSubmitting}
+                    onClick={handleRunBacktest}
+                    className="quant-run-btn"
                   >
-                    Proceed to Execution
+                    {isSubmitting ? 'Running…' : 'Run Backtest'}
                   </Button>
                 </CardFooter>
               </Card>
 
-              {/* Informational Callout */}
+              {runNotice && (
+                <div className="quant-run-notice" role="status">
+                  <Info size={15} className="text-accent" />
+                  <p className="meta-text">{runNotice}</p>
+                </div>
+              )}
+
               <div className="quant-config-notice">
-                <Info size={16} className="text-accent" />
+                <AlertTriangle size={15} className="text-warning" />
                 <p className="meta-text">
-                  <strong>Phase 1 Visual Foundation:</strong> Interactive parameter binding and non-mutating
-                  runtime execution will be activated in Phase 2 & Phase 3.
+                  <strong>Phase 3:</strong> Run Backtest POSTs to{' '}
+                  <code className="font-mono">/api/backtest/run</code>. Live progress streaming is
+                  Phase 4.
                 </p>
               </div>
-            </div>
+
+              <div className="quant-config-notice quant-config-notice--muted">
+                <CheckCircle2 size={15} className="text-profit" />
+                <p className="meta-text">
+                  Canonical strategy files remain read-only. Isolated runtime config under{' '}
+                  <code className="font-mono">.runtime/</code> injects parameters without rewriting{' '}
+                  <code className="font-mono">sma_crossover_algorithm.py</code>.
+                </p>
+              </div>
+            </aside>
           </div>
         </div>
       )}
 
-      {/* TAB 2: EXECUTION */}
       {activeTab === 'execution' && (
         <div className="quant-tab-content">
           <Card variant="surface-1">
             <CardHeader
               title="Execution Monitor"
-              subtitle="LEAN engine process tracking and runtime status"
-              action={<Badge variant="profit" size="sm">Engine Standby</Badge>}
+              subtitle="Phase 3 submission status — detailed streaming in Phase 4"
+              action={
+                <Badge
+                  variant={
+                    isSubmitting
+                      ? 'warning'
+                      : lastRun?.status === 'completed'
+                        ? 'profit'
+                        : lastRun
+                          ? 'loss'
+                          : 'coming-soon'
+                  }
+                  size="sm"
+                >
+                  {isSubmitting
+                    ? 'Running'
+                    : lastRun
+                      ? lastRun.status
+                      : 'Idle'}
+                </Badge>
+              }
             />
             <CardContent>
               <div className="quant-execution-preview">
@@ -206,33 +434,47 @@ export const BacktestingPage: React.FC = () => {
                   <div className="flex items-center gap-3">
                     <div className="quant-engine-status-dot" />
                     <div>
-                      <h4 className="quant-exec-title">Ready for Execution</h4>
-                      <p className="meta-text">Engine binary: QuantConnect.Lean.Launcher.exe</p>
+                      <h4 className="quant-exec-title">
+                        {isSubmitting
+                          ? 'LEAN backtest in progress…'
+                          : lastRun
+                            ? `Run ${lastRun.runId}`
+                            : 'No run submitted yet'}
+                      </h4>
+                      <p className="meta-text">
+                        {lastRun?.message ||
+                          'Submit from Configure to invoke FastAPI → runtime config → LEAN.'}
+                      </p>
                     </div>
                   </div>
-                  <Button
-                    variant="primary"
-                    size="md"
-                    icon={<Play size={14} />}
-                    onClick={() => setActiveTab('results')}
-                  >
-                    View Last Verified Results
+                  <Button variant="secondary" size="md" onClick={() => setActiveTab('configure')}>
+                    Back to Configure
                   </Button>
                 </div>
 
                 <div className="quant-console-preview">
                   <div className="quant-console-bar">
-                    <span className="caption-label">Process Log Stream Preview</span>
-                    <Badge variant="neutral" size="sm">PowerShell Orchestration</Badge>
+                    <span className="caption-label">Execution Snapshot</span>
+                    <Badge variant="neutral" size="sm">
+                      {lastRun?.status || (isSubmitting ? 'running' : 'idle')}
+                    </Badge>
                   </div>
                   <pre className="quant-terminal-text font-mono">
-{`[SYSTEM] Environment variables verified:
-         INDIAN_TRADING_SYSTEM_ROOT = D:\\LeanT\\IndianTradingSystem
-         INDIAN_TRADING_SYSTEM_DATA_DIR = D:\\LeanT\\IndianTradingSystem\\data
-         PYTHONNET_PYDLL = D:\\LeanT\\IndianTradingSystem\\.venv\\...\\python311.dll
-[ENGINE] LEAN Engine Launcher v2.5.0.0
-[ALGO]   SmaCrossoverAlgorithm initialized with 5 symbols
-[STATUS] Ready to execute via Phase 3 non-mutating runtime adapter`}
+{`[PHASE 3] POST /api/backtest/run
+[CONFIG ] strategy        = ${config.strategy}
+[CONFIG ] symbols         = ${config.symbols.join(', ') || '(none)'}
+[CONFIG ] period          = ${config.startDate} → ${config.endDate}
+[CONFIG ] capital         = ${formatINR(config.startingCapital)}
+[CONFIG ] brokerage       = ${config.brokerage}
+[CONFIG ] fast/slow/wt    = ${config.fastPeriod}/${config.slowPeriod}/${config.positionWeight}
+[RUN    ] id              = ${lastRun?.runId ?? (isSubmitting ? '(pending)' : '—')}
+[RUN    ] status          = ${lastRun?.status ?? (isSubmitting ? 'running' : '—')}
+[RUN    ] pid             = ${lastRun?.processId ?? '—'}
+[RUN    ] duration_s      = ${lastRun?.durationSeconds ?? '—'}
+[RUN    ] summary         = ${lastRun?.summaryPath ?? '—'}
+[RUN    ] runtime_config  = ${lastRun?.runtimeConfigPath ?? '—'}
+[STATS  ] ${lastRun?.statistics ? JSON.stringify(lastRun.statistics) : '—'}
+[STATUS ] Real-time LEAN log monitoring coming in Phase 4`}
                   </pre>
                 </div>
               </div>
@@ -241,16 +483,20 @@ export const BacktestingPage: React.FC = () => {
         </div>
       )}
 
-      {/* TAB 3: RESULTS */}
       {activeTab === 'results' && (
         <div className="quant-tab-content">
           <div className="quant-results-overview">
             <div className="quant-results-header-card">
               <div>
-                <Badge variant="profit" size="sm">Verified Checkpoint Result</Badge>
-                <h2 className="heading-section mt-1">SmaCrossoverAlgorithm — 5-Stock Portfolio Run</h2>
+                <Badge variant="profit" size="sm">
+                  Verified Checkpoint Result
+                </Badge>
+                <h2 className="heading-section mt-1">
+                  SmaCrossoverAlgorithm — 5-Stock Portfolio Run
+                </h2>
                 <p className="meta-text">
-                  Source: <code className="font-mono">D:\LeanT\Lean\Launcher\bin\Debug\results\SmaCrossoverAlgorithm-summary.json</code>
+                  Static reference metrics from the pre-frontend checkpoint. Interactive charts
+                  connect in Phase 5.
                 </p>
               </div>
               <Button
@@ -275,7 +521,7 @@ export const BacktestingPage: React.FC = () => {
                 <span className="meta-text">Downside Risk Adjusted</span>
               </div>
               <div className="quant-stat-card">
-                <span className="caption-label">Compounded Annual Return (CAGR)</span>
+                <span className="caption-label">CAGR</span>
                 <span className="metric-value font-mono text-profit">7.583%</span>
                 <span className="meta-text">Multi-year timeline</span>
               </div>
@@ -295,12 +541,12 @@ export const BacktestingPage: React.FC = () => {
                 <span className="meta-text text-profit">+₹9,30,342 Profit</span>
               </div>
               <div className="quant-stat-card">
-                <span className="caption-label">Zerodha Brokerage Fees</span>
+                <span className="caption-label">Zerodha Fees</span>
                 <span className="metric-value font-mono">₹18,579</span>
                 <span className="meta-text">Deducted from Equity</span>
               </div>
               <div className="quant-stat-card">
-                <span className="caption-label">Total Closed Trades</span>
+                <span className="caption-label">Closed Trades</span>
                 <span className="metric-value font-mono">119</span>
                 <span className="meta-text">245 Order Events</span>
               </div>
@@ -308,14 +554,19 @@ export const BacktestingPage: React.FC = () => {
 
             <Card variant="surface-1">
               <CardHeader
-                title="Results Dashboard Integration Notice"
+                title="Results Dashboard Integration"
                 subtitle="Scheduled for Phase 5"
+                action={
+                  <Badge variant="coming-soon" size="sm">
+                    Coming Soon
+                  </Badge>
+                }
               />
               <CardContent>
                 <p className="quant-card-text">
-                  Full interactive equity curve charts, drawdown plots, trade tables, and order events
-                  will be connected in <strong>Phase 5</strong> directly from the verified 30KB summary
-                  and 2.96MB result JSON files.
+                  Full interactive equity curve, drawdown underlay, trade tables, and order events
+                  will parse verified LEAN JSON outputs in Phase 5. No fabricated series are shown
+                  here.
                 </p>
               </CardContent>
             </Card>

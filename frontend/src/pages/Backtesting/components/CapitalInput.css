@@ -1,0 +1,59 @@
+/* ==========================================================================
+   Capital Input Styles — token-driven
+   ========================================================================== */
+
+.quant-capital-input-root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.quant-denom-badge {
+  font-size: var(--text-2xs);
+  color: var(--profit-green);
+  background-color: var(--profit-subtle);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  padding: 1px 7px;
+  border-radius: var(--radius-xs);
+  font-weight: var(--weight-semibold);
+}
+
+.quant-capital-field {
+  display: flex;
+  align-items: center;
+  background-color: var(--surface-2);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
+  padding: 0 var(--space-3);
+  height: 40px;
+  transition: border-color var(--transition-fast);
+}
+
+.quant-capital-field:focus-within {
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.15);
+}
+
+.quant-capital-icon-box {
+  display: flex;
+  align-items: center;
+  margin-right: var(--space-2);
+}
+
+.quant-capital-native-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  font-size: var(--text-md);
+  font-weight: var(--weight-bold);
+  color: var(--text-primary);
+  outline: none;
+}
+
+.quant-currency-tag {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  background-color: var(--surface-3);
+  padding: 2px 6px;
+  border-radius: var(--radius-xs);
+}
