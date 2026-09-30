@@ -1,0 +1,83 @@
+/* ==========================================================================
+   Quant Card Styles — token-driven
+   ========================================================================== */
+
+.quant-card {
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+  transition: border-color var(--transition-base), box-shadow var(--transition-base);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.quant-card--surface-1 {
+  background-color: var(--surface-1);
+}
+
+.quant-card--surface-2 {
+  background-color: var(--surface-2);
+}
+
+.quant-card--surface-3 {
+  background-color: var(--surface-3);
+}
+
+.quant-card--flat {
+  box-shadow: none;
+}
+
+.quant-card--elevated {
+  box-shadow: var(--shadow-md);
+}
+
+.quant-card--glow {
+  box-shadow: var(--shadow-accent);
+  border-color: var(--border-accent);
+}
+
+.quant-card:hover {
+  border-color: var(--border-default);
+}
+
+.quant-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--border-subtle);
+  gap: var(--space-4);
+}
+
+.quant-card-header-titles {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.quant-card-title {
+  font-family: var(--font-sans);
+  font-size: var(--text-md);
+  font-weight: var(--weight-semibold);
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+
+.quant-card-subtitle {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+.quant-card-content {
+  padding: var(--space-5);
+  flex: 1;
+}
+
+.quant-card-footer {
+  padding: var(--space-3) var(--space-5);
+  border-top: 1px solid var(--border-subtle);
+  background-color: rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}

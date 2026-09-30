@@ -1,0 +1,48 @@
+/* ==========================================================================
+   TopBar Styles — token-driven
+   ========================================================================== */
+
+.quant-topbar {
+  height: 52px;
+  background-color: var(--surface-1);
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--space-6);
+  flex-shrink: 0;
+  z-index: 10;
+}
+
+.quant-topbar-left,
+.quant-topbar-right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.quant-topbar-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-xs);
+}
+
+.quant-topbar-icon {
+  color: var(--accent-primary);
+}
+
+.quant-topbar-label {
+  color: var(--text-muted);
+}
+
+.quant-topbar-value {
+  color: var(--text-primary);
+  font-weight: var(--weight-medium);
+}
+
+.quant-topbar-divider {
+  width: 1px;
+  height: 18px;
+  background-color: var(--border-subtle);
+}

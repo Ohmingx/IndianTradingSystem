@@ -1,0 +1,10 @@
+/* ==========================================================================
+   Live Testing Page Styles — token-driven
+   ========================================================================== */
+
+.quant-livetesting-view {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  max-width: 1300px;
+}

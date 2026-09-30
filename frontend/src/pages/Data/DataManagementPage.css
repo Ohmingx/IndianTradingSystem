@@ -1,0 +1,58 @@
+/* ==========================================================================
+   Data Management Page Styles — token-driven
+   ========================================================================== */
+
+.quant-data-view {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  max-width: 1300px;
+}
+
+.quant-market-specs-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--space-4);
+}
+
+.quant-spec-card {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background-color: var(--surface-1);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+}
+
+.quant-table-wrap {
+  overflow-x: auto;
+}
+
+.quant-data-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.quant-data-table th {
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--border-subtle);
+  background-color: var(--surface-2);
+}
+
+.quant-data-table td {
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--border-subtle);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+.quant-data-table tr:hover td {
+  background-color: var(--surface-2);
+}

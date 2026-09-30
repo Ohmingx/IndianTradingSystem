@@ -1,0 +1,85 @@
+/* ==========================================================================
+   Quant Badge Styles — token-driven
+   ========================================================================== */
+
+.quant-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-family: var(--font-mono);
+  font-weight: var(--weight-medium);
+  border-radius: var(--radius-pill);
+  line-height: 1;
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+  transition: background-color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.quant-badge--sm {
+  padding: 2px 7px;
+  font-size: var(--text-2xs);
+}
+
+.quant-badge--md {
+  padding: 3px 10px;
+  font-size: var(--text-xs);
+}
+
+.quant-badge-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: var(--radius-pill);
+  background-color: currentColor;
+}
+
+/* Neutral */
+.quant-badge--neutral {
+  background-color: var(--surface-3);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-subtle);
+}
+
+/* Profit / Positive */
+.quant-badge--profit {
+  background-color: var(--profit-subtle);
+  color: var(--profit-green);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+/* Loss / Negative */
+.quant-badge--loss {
+  background-color: var(--loss-subtle);
+  color: var(--loss-red);
+  border: 1px solid rgba(244, 63, 94, 0.25);
+}
+
+/* Warning */
+.quant-badge--warning {
+  background-color: var(--warning-subtle);
+  color: var(--warning-amber);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+}
+
+/* Info */
+.quant-badge--info {
+  background-color: var(--info-subtle);
+  color: var(--info-blue);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+}
+
+/* Coming Soon / Roadmap */
+.quant-badge--coming-soon {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.12), rgba(168, 85, 247, 0.12));
+  color: #c084fc;
+  border: 1px solid rgba(168, 85, 247, 0.3);
+  text-transform: uppercase;
+  font-size: var(--text-2xs);
+  letter-spacing: 0.06em;
+}
+
+/* Outline */
+.quant-badge--outline {
+  background-color: transparent;
+  color: var(--text-muted);
+  border: 1px solid var(--border-default);
+}

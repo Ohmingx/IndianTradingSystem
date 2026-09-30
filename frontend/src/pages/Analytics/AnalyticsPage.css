@@ -1,0 +1,39 @@
+/* ==========================================================================
+   Analytics Page Styles — token-driven
+   ========================================================================== */
+
+.quant-analytics-view {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  max-width: 1300px;
+}
+
+.quant-analytics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(460px, 1fr));
+  gap: var(--space-6);
+}
+
+.quant-analytics-placeholder-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.quant-metric-mini-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-3);
+  background-color: var(--surface-2);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3);
+}
+
+.quant-mini-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-align: center;
+}

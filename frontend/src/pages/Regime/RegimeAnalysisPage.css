@@ -1,0 +1,10 @@
+/* ==========================================================================
+   Regime Analysis Page Styles — token-driven
+   ========================================================================== */
+
+.quant-regime-view {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  max-width: 1300px;
+}
