@@ -1,0 +1,27 @@
+{
+    "symbol": "RELIANCE.NS",
+    "source": "yfinance",
+    "download_timestamp": "2026-09-12T16:38:45.355921Z",
+    "start_date": "2015-01-01",
+    "end_date": "2023-12-31",
+    "resolution": "daily",
+    "auto_adjust": false,
+    "timezone": "Asia/Kolkata",
+    "row_count": 2221,
+    "validation_status": "passed",
+    "validation_report": {
+        "symbol": "RELIANCE.NS",
+        "first_timestamp": "2015-01-01 05:30:00+05:30",
+        "last_timestamp": "2023-12-29 05:30:00+05:30",
+        "initial_rows": 2221,
+        "missing_ohlc_values": 0,
+        "duplicate_timestamps": 0,
+        "invalid_ohlc_rows": 0,
+        "negative_volume_rows": 0,
+        "min_price": 182.05506896972656,
+        "max_price": 1318.11279296875,
+        "total_volume": 42205687720.0,
+        "detected_gaps": 0,
+        "final_rows": 2221
+    }
+}

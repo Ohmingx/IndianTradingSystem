@@ -1,0 +1,212 @@
+2026-09-12T18:45:57.2728021Z TRACE:: Engine.Main(): LEAN ALGORITHMIC TRADING ENGINE v2.5.0.0 Mode: DEBUG (64bit) Host: HERCULES
+2026-09-12T18:45:57.2843221Z TRACE:: Engine.Main(): Started 00:15
+2026-09-12T18:45:57.3439872Z TRACE:: JobQueue.NextJob(): Selected D:\LeanT\IndianTradingSystem\src\lean_integration\trading_model_algorithm.py
+2026-09-12T18:45:57.4109368Z TRACE:: AlgorithmManager.CreateTokenBucket(): Initializing LeakyBucket: Capacity: 120 RefillAmount: 18 TimeInterval: 1440
+2026-09-12T18:45:57.4297967Z TRACE:: Engine.Run(): Resource limits '0' CPUs. 2147483647 MB RAM.
+2026-09-12T18:45:57.4319151Z TRACE:: TextSubscriptionDataSourceReader.SetCacheSize(): Setting cache size to 71582788 items
+2026-09-12T18:45:58.9945890Z TRACE:: PythonInitializer.Initialize(): start...
+2026-09-12T18:45:59.3329008Z ERROR:: Loader.TryCreatePythonAlgorithm():  Python.Runtime.BadPythonDllException: Runtime.PythonDLL was not set or does not point to a supported Python runtime DLL. See pythonnet#embedding-python-in-net. Value of PythonDLL: null
+ ---> System.MissingMethodException: Failed to load symbol Py_IncRef.
+ ---> System.ComponentModel.Win32Exception (127): The specified procedure could not be found.
+   --- End of inner exception stack trace ---
+   at Python.Runtime.Platform.WindowsLoader.GetFunction(IntPtr hModule, String procedureName)
+   at Python.Runtime.Runtime.Delegates.GetFunctionByName(String functionName, IntPtr libraryHandle)
+   --- End of inner exception stack trace ---
+   at Python.Runtime.Runtime.TryUsingDll[T](Func`1 op)
+   at Python.Runtime.Runtime.Initialize(Boolean initSigs)
+   at Python.Runtime.PythonEngine.Initialize(IEnumerable`1 args, Boolean setSysArgv, Boolean initSigs)
+   at Python.Runtime.PythonEngine.Initialize(Boolean setSysArgv, Boolean initSigs)
+   at Python.Runtime.PythonEngine.Initialize()
+   at QuantConnect.Python.PythonInitializer.Initialize(Boolean beginAllowThreads) in Common\Python\PythonInitializer.cs:line 56
+   at QuantConnect.AlgorithmFactory.Loader.TryCreatePythonAlgorithm(String assemblyPath, IAlgorithm& algorithmInstance, String& errorMessage) in AlgorithmFactory\Loader.cs:line 171
+2026-09-12T18:45:59.4183820Z ERROR:: Engine.Run():  QuantConnect.Lean.Engine.Setup.AlgorithmSetupException: During the algorithm initialization, the following exception has occurred: Loader.TryCreatePythonAlgorithm(): Unable to import python module D:\LeanT\IndianTradingSystem\src\lean_integration\trading_model_algorithm.py. Runtime.PythonDLL was not set or does not point to a supported Python runtime DLL. See pythonnet#embedding-python-in-net. Value of PythonDLL: null
+   at QuantConnect.Lean.Engine.Setup.BacktestingSetupHandler.CreateAlgorithmInstance(AlgorithmNodePacket algorithmNodePacket, String assemblyPath) in Engine\Setup\BacktestingSetupHandler.cs:line 113
+   at QuantConnect.Lean.Engine.Engine.Run(AlgorithmNodePacket job, AlgorithmManager manager, String assemblyPath, WorkerThread workerThread) in Engine\Engine.cs:line 125
+2026-09-12T18:45:59.4324508Z TRACE:: JOB HANDLERS:
+         DataFeed:             QuantConnect.Lean.Engine.DataFeeds.FileSystemDataFeed
+         Setup:                QuantConnect.Lean.Engine.Setup.ConsoleSetupHandler
+         RealTime:             QuantConnect.Lean.Engine.RealTime.BacktestingRealTimeHandler
+         Results:              QuantConnect.Lean.Engine.Results.BacktestingResultHandler
+         Transactions:         QuantConnect.Lean.Engine.TransactionHandlers.BacktestingTransactionHandler
+         Object Store:         QuantConnect.Lean.Engine.Storage.LocalObjectStore
+         History Provider:     
+         Brokerage:            
+         Data Provider:        QuantConnect.Lean.Engine.DataFeeds.DefaultDataProvider
+
+2026-09-12T18:45:59.4361311Z TRACE:: BacktestingResultHandler.Exit(): starting...
+2026-09-12T18:45:59.4374129Z TRACE:: BacktestingResultHandler.Exit(): Saving logs...
+2026-09-12T18:45:59.4433067Z TRACE:: StopSafely(): Waiting for 'Result Thread' thread to stop...
+2026-09-12T18:45:59.4454705Z ERROR:: Algorithm.Initialize() Error: During the algorithm initialization, the following exception has occurred: Loader.TryCreatePythonAlgorithm(): Unable to import python module D:\LeanT\IndianTradingSystem\src\lean_integration\trading_model_algorithm.py. Runtime.PythonDLL was not set or does not point to a supported Python runtime DLL. See https://github.com/pythonnet/pythonnet#embedding-python-in-net. Value of PythonDLL: null Stack Trace: During the algorithm initialization, the following exception has occurred: Loader.TryCreatePythonAlgorithm(): Unable to import python module D:\LeanT\IndianTradingSystem\src\lean_integration\trading_model_algorithm.py. Runtime.PythonDLL was not set or does not point to a supported Python runtime DLL. See https://github.com/pythonnet/pythonnet#embedding-python-in-net. Value of PythonDLL: null
+ During the algorithm initialization, the following exception has occurred: Loader.TryCreatePythonAlgorithm(): Unable to import python module D:\LeanT\IndianTradingSystem\src\lean_integration\trading_model_algorithm.py. Runtime.PythonDLL was not set or does not point to a supported Python runtime DLL. See https://github.com/pythonnet/pythonnet#embedding-python-in-net. Value of PythonDLL: null
+2026-09-12T18:45:59.4460788Z TRACE:: Debug: Your log was successfully created and can be retrieved from: results\MinimalIndianAlgorithm-log.txt
+2026-09-12T18:45:59.4461471Z TRACE:: BacktestingResultHandler.Run(): Ending Thread...
+2026-09-12T18:45:59.4783187Z TRACE:: BacktestingResultHandler.CreateResultSummary(): 'Strategy Equity' chart not found
+2026-09-12T18:45:59.8396438Z ERROR:: BacktestingResultHandler.SendFinalResult(): Error running backtest analysis System.NullReferenceException: Object reference not set to an instance of an object.
+   at QuantConnect.Lean.Engine.Results.Analysis.Analyses.ParameterCountAnalysis.Run(QCAlgorithm algorithm, Language language) in Engine\Results\Analysis\Analyses\ParameterCountAnalysis.cs:line 67
+   at QuantConnect.Lean.Engine.Results.Analysis.Analyses.ParameterCountAnalysis.Run(ResultsAnalysisRunParameters parameters) in Engine\Results\Analysis\Analyses\ParameterCountAnalysis.cs:line 45
+   at QuantConnect.Lean.Engine.Results.Analysis.ResultsAnalyzer.Run(Int32 timeLimitSeconds, Int32 maxFailedAnalyses) in Engine\Results\Analysis\ResultsAnalyzer.cs:line 248
+   at QuantConnect.Lean.Engine.Results.BacktestingResultHandler.SendFinalResult() in Engine\Results\BacktestingResultHandler.cs:line 434
+2026-09-12T18:45:59.8741762Z TRACE:: 
+STATISTICS:: OrderListHash d41d8cd98f00b204e9800998ecf8427e
+2026-09-12T18:45:59.8742725Z TRACE:: BacktestingResultHandler.SendAnalysisResult(): Processed final packet
+2026-09-12T18:45:59.8763980Z TRACE:: Engine.Run(): Disposing of setup handler...
+2026-09-12T18:45:59.8767852Z TRACE:: Engine.Main(): Analysis Completed and Results Posted.
+2026-09-12T18:50:36.2005754Z TRACE:: Engine.Main(): LEAN ALGORITHMIC TRADING ENGINE v2.5.0.0 Mode: DEBUG (64bit) Host: HERCULES
+2026-09-12T18:50:36.2117405Z TRACE:: Engine.Main(): Started 00:20
+2026-09-12T18:50:36.2686135Z TRACE:: JobQueue.NextJob(): Selected D:\LeanT\IndianTradingSystem\src\lean_integration\trading_model_algorithm.py
+2026-09-12T18:50:36.3281529Z TRACE:: AlgorithmManager.CreateTokenBucket(): Initializing LeakyBucket: Capacity: 120 RefillAmount: 18 TimeInterval: 1440
+2026-09-12T18:50:36.3467100Z TRACE:: Engine.Run(): Resource limits '0' CPUs. 2147483647 MB RAM.
+2026-09-12T18:50:36.3482846Z TRACE:: TextSubscriptionDataSourceReader.SetCacheSize(): Setting cache size to 71582788 items
+2026-09-12T18:50:38.0191515Z TRACE:: PythonInitializer.Initialize(): start...
+2026-09-12T18:50:38.1059175Z ERROR:: Loader.TryCreatePythonAlgorithm():  Python.Runtime.BadPythonDllException: Runtime.PythonDLL was not set or does not point to a supported Python runtime DLL. See pythonnet#embedding-python-in-net. Value of PythonDLL: null
+ ---> System.MissingMethodException: Failed to load symbol Py_IncRef.
+ ---> System.ComponentModel.Win32Exception (127): The specified procedure could not be found.
+   --- End of inner exception stack trace ---
+   at Python.Runtime.Platform.WindowsLoader.GetFunction(IntPtr hModule, String procedureName)
+   at Python.Runtime.Runtime.Delegates.GetFunctionByName(String functionName, IntPtr libraryHandle)
+   --- End of inner exception stack trace ---
+   at Python.Runtime.Runtime.TryUsingDll[T](Func`1 op)
+   at Python.Runtime.Runtime.Initialize(Boolean initSigs)
+   at Python.Runtime.PythonEngine.Initialize(IEnumerable`1 args, Boolean setSysArgv, Boolean initSigs)
+   at Python.Runtime.PythonEngine.Initialize(Boolean setSysArgv, Boolean initSigs)
+   at Python.Runtime.PythonEngine.Initialize()
+   at QuantConnect.Python.PythonInitializer.Initialize(Boolean beginAllowThreads) in Common\Python\PythonInitializer.cs:line 56
+   at QuantConnect.AlgorithmFactory.Loader.TryCreatePythonAlgorithm(String assemblyPath, IAlgorithm& algorithmInstance, String& errorMessage) in AlgorithmFactory\Loader.cs:line 171
+2026-09-12T18:50:38.1162753Z ERROR:: Engine.Run():  QuantConnect.Lean.Engine.Setup.AlgorithmSetupException: During the algorithm initialization, the following exception has occurred: Loader.TryCreatePythonAlgorithm(): Unable to import python module D:\LeanT\IndianTradingSystem\src\lean_integration\trading_model_algorithm.py. Runtime.PythonDLL was not set or does not point to a supported Python runtime DLL. See pythonnet#embedding-python-in-net. Value of PythonDLL: null
+   at QuantConnect.Lean.Engine.Setup.BacktestingSetupHandler.CreateAlgorithmInstance(AlgorithmNodePacket algorithmNodePacket, String assemblyPath) in Engine\Setup\BacktestingSetupHandler.cs:line 113
+   at QuantConnect.Lean.Engine.Engine.Run(AlgorithmNodePacket job, AlgorithmManager manager, String assemblyPath, WorkerThread workerThread) in Engine\Engine.cs:line 125
+2026-09-12T18:50:38.1205919Z TRACE:: JOB HANDLERS:
+         DataFeed:             QuantConnect.Lean.Engine.DataFeeds.FileSystemDataFeed
+         Setup:                QuantConnect.Lean.Engine.Setup.ConsoleSetupHandler
+         RealTime:             QuantConnect.Lean.Engine.RealTime.BacktestingRealTimeHandler
+         Results:              QuantConnect.Lean.Engine.Results.BacktestingResultHandler
+         Transactions:         QuantConnect.Lean.Engine.TransactionHandlers.BacktestingTransactionHandler
+         Object Store:         QuantConnect.Lean.Engine.Storage.LocalObjectStore
+         History Provider:     
+         Brokerage:            
+         Data Provider:        QuantConnect.Lean.Engine.DataFeeds.DefaultDataProvider
+
+2026-09-12T18:50:38.1228584Z TRACE:: BacktestingResultHandler.Exit(): starting...
+2026-09-12T18:50:38.1240763Z TRACE:: BacktestingResultHandler.Exit(): Saving logs...
+2026-09-12T18:50:38.1298335Z TRACE:: StopSafely(): Waiting for 'Result Thread' thread to stop...
+2026-09-12T18:50:38.1317470Z ERROR:: Algorithm.Initialize() Error: During the algorithm initialization, the following exception has occurred: Loader.TryCreatePythonAlgorithm(): Unable to import python module D:\LeanT\IndianTradingSystem\src\lean_integration\trading_model_algorithm.py. Runtime.PythonDLL was not set or does not point to a supported Python runtime DLL. See https://github.com/pythonnet/pythonnet#embedding-python-in-net. Value of PythonDLL: null Stack Trace: During the algorithm initialization, the following exception has occurred: Loader.TryCreatePythonAlgorithm(): Unable to import python module D:\LeanT\IndianTradingSystem\src\lean_integration\trading_model_algorithm.py. Runtime.PythonDLL was not set or does not point to a supported Python runtime DLL. See https://github.com/pythonnet/pythonnet#embedding-python-in-net. Value of PythonDLL: null
+ During the algorithm initialization, the following exception has occurred: Loader.TryCreatePythonAlgorithm(): Unable to import python module D:\LeanT\IndianTradingSystem\src\lean_integration\trading_model_algorithm.py. Runtime.PythonDLL was not set or does not point to a supported Python runtime DLL. See https://github.com/pythonnet/pythonnet#embedding-python-in-net. Value of PythonDLL: null
+2026-09-12T18:50:38.1323434Z TRACE:: Debug: Your log was successfully created and can be retrieved from: results\TradingModelAlgorithm-log.txt
+2026-09-12T18:50:38.1326522Z TRACE:: BacktestingResultHandler.Run(): Ending Thread...
+2026-09-12T18:50:38.1599894Z TRACE:: BacktestingResultHandler.CreateResultSummary(): 'Strategy Equity' chart not found
+2026-09-12T18:50:38.4102450Z ERROR:: BacktestingResultHandler.SendFinalResult(): Error running backtest analysis System.NullReferenceException: Object reference not set to an instance of an object.
+   at QuantConnect.Lean.Engine.Results.Analysis.Analyses.ParameterCountAnalysis.Run(QCAlgorithm algorithm, Language language) in Engine\Results\Analysis\Analyses\ParameterCountAnalysis.cs:line 67
+   at QuantConnect.Lean.Engine.Results.Analysis.Analyses.ParameterCountAnalysis.Run(ResultsAnalysisRunParameters parameters) in Engine\Results\Analysis\Analyses\ParameterCountAnalysis.cs:line 45
+   at QuantConnect.Lean.Engine.Results.Analysis.ResultsAnalyzer.Run(Int32 timeLimitSeconds, Int32 maxFailedAnalyses) in Engine\Results\Analysis\ResultsAnalyzer.cs:line 248
+   at QuantConnect.Lean.Engine.Results.BacktestingResultHandler.SendFinalResult() in Engine\Results\BacktestingResultHandler.cs:line 434
+2026-09-12T18:50:38.4515728Z TRACE:: 
+STATISTICS:: OrderListHash d41d8cd98f00b204e9800998ecf8427e
+2026-09-12T18:50:38.4516375Z TRACE:: BacktestingResultHandler.SendAnalysisResult(): Processed final packet
+2026-09-12T18:50:38.4532055Z TRACE:: Engine.Run(): Disposing of setup handler...
+2026-09-12T18:50:38.4535365Z TRACE:: Engine.Main(): Analysis Completed and Results Posted.
+2026-09-12T18:57:22.1859684Z TRACE:: Engine.Main(): LEAN ALGORITHMIC TRADING ENGINE v2.5.0.0 Mode: DEBUG (64bit) Host: HERCULES
+2026-09-12T18:57:22.1970609Z TRACE:: Engine.Main(): Started 00:27
+2026-09-12T18:57:22.2557110Z TRACE:: JobQueue.NextJob(): Selected D:\LeanT\IndianTradingSystem\src\lean_integration\trading_model_algorithm.py
+2026-09-12T18:57:22.3164580Z TRACE:: AlgorithmManager.CreateTokenBucket(): Initializing LeakyBucket: Capacity: 120 RefillAmount: 18 TimeInterval: 1440
+2026-09-12T18:57:22.3337961Z TRACE:: Engine.Run(): Resource limits '0' CPUs. 2147483647 MB RAM.
+2026-09-12T18:57:22.3351348Z TRACE:: TextSubscriptionDataSourceReader.SetCacheSize(): Setting cache size to 71582788 items
+2026-09-12T18:57:23.8020712Z TRACE:: PythonInitializer.Initialize(): start...
+2026-09-12T18:57:23.8932551Z ERROR:: Loader.TryCreatePythonAlgorithm():  Python.Runtime.BadPythonDllException: Runtime.PythonDLL was not set or does not point to a supported Python runtime DLL. See pythonnet#embedding-python-in-net. Value of PythonDLL: null
+ ---> System.MissingMethodException: Failed to load symbol Py_IncRef.
+ ---> System.ComponentModel.Win32Exception (127): The specified procedure could not be found.
+   --- End of inner exception stack trace ---
+   at Python.Runtime.Platform.WindowsLoader.GetFunction(IntPtr hModule, String procedureName)
+   at Python.Runtime.Runtime.Delegates.GetFunctionByName(String functionName, IntPtr libraryHandle)
+   --- End of inner exception stack trace ---
+   at Python.Runtime.Runtime.TryUsingDll[T](Func`1 op)
+   at Python.Runtime.Runtime.Initialize(Boolean initSigs)
+   at Python.Runtime.PythonEngine.Initialize(IEnumerable`1 args, Boolean setSysArgv, Boolean initSigs)
+   at Python.Runtime.PythonEngine.Initialize(Boolean setSysArgv, Boolean initSigs)
+   at Python.Runtime.PythonEngine.Initialize()
+   at QuantConnect.Python.PythonInitializer.Initialize(Boolean beginAllowThreads) in Common\Python\PythonInitializer.cs:line 56
+   at QuantConnect.AlgorithmFactory.Loader.TryCreatePythonAlgorithm(String assemblyPath, IAlgorithm& algorithmInstance, String& errorMessage) in AlgorithmFactory\Loader.cs:line 171
+2026-09-12T18:57:23.9982227Z ERROR:: Engine.Run():  QuantConnect.Lean.Engine.Setup.AlgorithmSetupException: During the algorithm initialization, the following exception has occurred: Loader.TryCreatePythonAlgorithm(): Unable to import python module D:\LeanT\IndianTradingSystem\src\lean_integration\trading_model_algorithm.py. Runtime.PythonDLL was not set or does not point to a supported Python runtime DLL. See pythonnet#embedding-python-in-net. Value of PythonDLL: null
+   at QuantConnect.Lean.Engine.Setup.BacktestingSetupHandler.CreateAlgorithmInstance(AlgorithmNodePacket algorithmNodePacket, String assemblyPath) in Engine\Setup\BacktestingSetupHandler.cs:line 113
+   at QuantConnect.Lean.Engine.Engine.Run(AlgorithmNodePacket job, AlgorithmManager manager, String assemblyPath, WorkerThread workerThread) in Engine\Engine.cs:line 125
+2026-09-12T18:57:24.0027167Z TRACE:: JOB HANDLERS:
+         DataFeed:             QuantConnect.Lean.Engine.DataFeeds.FileSystemDataFeed
+         Setup:                QuantConnect.Lean.Engine.Setup.ConsoleSetupHandler
+         RealTime:             QuantConnect.Lean.Engine.RealTime.BacktestingRealTimeHandler
+         Results:              QuantConnect.Lean.Engine.Results.BacktestingResultHandler
+         Transactions:         QuantConnect.Lean.Engine.TransactionHandlers.BacktestingTransactionHandler
+         Object Store:         QuantConnect.Lean.Engine.Storage.LocalObjectStore
+         History Provider:     
+         Brokerage:            
+         Data Provider:        QuantConnect.Lean.Engine.DataFeeds.DefaultDataProvider
+
+2026-09-12T18:57:24.0056733Z TRACE:: BacktestingResultHandler.Exit(): starting...
+2026-09-12T18:57:24.0071404Z TRACE:: BacktestingResultHandler.Exit(): Saving logs...
+2026-09-12T18:57:24.0153464Z TRACE:: StopSafely(): Waiting for 'Result Thread' thread to stop...
+2026-09-12T18:57:24.0171525Z ERROR:: Algorithm.Initialize() Error: During the algorithm initialization, the following exception has occurred: Loader.TryCreatePythonAlgorithm(): Unable to import python module D:\LeanT\IndianTradingSystem\src\lean_integration\trading_model_algorithm.py. Runtime.PythonDLL was not set or does not point to a supported Python runtime DLL. See https://github.com/pythonnet/pythonnet#embedding-python-in-net. Value of PythonDLL: null Stack Trace: During the algorithm initialization, the following exception has occurred: Loader.TryCreatePythonAlgorithm(): Unable to import python module D:\LeanT\IndianTradingSystem\src\lean_integration\trading_model_algorithm.py. Runtime.PythonDLL was not set or does not point to a supported Python runtime DLL. See https://github.com/pythonnet/pythonnet#embedding-python-in-net. Value of PythonDLL: null
+ During the algorithm initialization, the following exception has occurred: Loader.TryCreatePythonAlgorithm(): Unable to import python module D:\LeanT\IndianTradingSystem\src\lean_integration\trading_model_algorithm.py. Runtime.PythonDLL was not set or does not point to a supported Python runtime DLL. See https://github.com/pythonnet/pythonnet#embedding-python-in-net. Value of PythonDLL: null
+2026-09-12T18:57:24.0177688Z TRACE:: Debug: Your log was successfully created and can be retrieved from: results\TradingModelAlgorithm-log.txt
+2026-09-12T18:57:24.0178412Z TRACE:: BacktestingResultHandler.Run(): Ending Thread...
+2026-09-12T18:57:24.0445897Z TRACE:: BacktestingResultHandler.CreateResultSummary(): 'Strategy Equity' chart not found
+2026-09-12T18:57:24.2806958Z ERROR:: BacktestingResultHandler.SendFinalResult(): Error running backtest analysis System.NullReferenceException: Object reference not set to an instance of an object.
+   at QuantConnect.Lean.Engine.Results.Analysis.Analyses.ParameterCountAnalysis.Run(QCAlgorithm algorithm, Language language) in Engine\Results\Analysis\Analyses\ParameterCountAnalysis.cs:line 67
+   at QuantConnect.Lean.Engine.Results.Analysis.Analyses.ParameterCountAnalysis.Run(ResultsAnalysisRunParameters parameters) in Engine\Results\Analysis\Analyses\ParameterCountAnalysis.cs:line 45
+   at QuantConnect.Lean.Engine.Results.Analysis.ResultsAnalyzer.Run(Int32 timeLimitSeconds, Int32 maxFailedAnalyses) in Engine\Results\Analysis\ResultsAnalyzer.cs:line 248
+   at QuantConnect.Lean.Engine.Results.BacktestingResultHandler.SendFinalResult() in Engine\Results\BacktestingResultHandler.cs:line 434
+2026-09-12T18:57:24.3057539Z TRACE:: 
+STATISTICS:: OrderListHash d41d8cd98f00b204e9800998ecf8427e
+2026-09-12T18:57:24.3059790Z TRACE:: BacktestingResultHandler.SendAnalysisResult(): Processed final packet
+2026-09-12T18:57:24.3072451Z TRACE:: Engine.Run(): Disposing of setup handler...
+2026-09-12T18:57:24.3075216Z TRACE:: Engine.Main(): Analysis Completed and Results Posted.
+2026-09-12T18:59:49.9163162Z TRACE:: Engine.Main(): LEAN ALGORITHMIC TRADING ENGINE v2.5.0.0 Mode: DEBUG (64bit) Host: HERCULES
+2026-09-12T18:59:49.9372518Z TRACE:: Engine.Main(): Started 00:29
+2026-09-12T18:59:50.0128269Z TRACE:: JobQueue.NextJob(): Selected D:\LeanT\IndianTradingSystem\src\lean_integration\trading_model_algorithm.py
+2026-09-12T18:59:50.0959051Z TRACE:: AlgorithmManager.CreateTokenBucket(): Initializing LeakyBucket: Capacity: 120 RefillAmount: 18 TimeInterval: 1440
+2026-09-12T18:59:50.1192860Z TRACE:: Engine.Run(): Resource limits '0' CPUs. 2147483647 MB RAM.
+2026-09-12T18:59:50.1207732Z TRACE:: TextSubscriptionDataSourceReader.SetCacheSize(): Setting cache size to 71582788 items
+2026-09-12T18:59:51.5768938Z TRACE:: PythonInitializer.Initialize(): start...
+2026-09-12T18:59:51.6725946Z ERROR:: Loader.TryCreatePythonAlgorithm():  Python.Runtime.BadPythonDllException: Runtime.PythonDLL was not set or does not point to a supported Python runtime DLL. See pythonnet#embedding-python-in-net. Value of PythonDLL: null
+ ---> System.MissingMethodException: Failed to load symbol Py_IncRef.
+ ---> System.ComponentModel.Win32Exception (127): The specified procedure could not be found.
+   --- End of inner exception stack trace ---
+   at Python.Runtime.Platform.WindowsLoader.GetFunction(IntPtr hModule, String procedureName)
+   at Python.Runtime.Runtime.Delegates.GetFunctionByName(String functionName, IntPtr libraryHandle)
+   --- End of inner exception stack trace ---
+   at Python.Runtime.Runtime.TryUsingDll[T](Func`1 op)
+   at Python.Runtime.Runtime.Initialize(Boolean initSigs)
+   at Python.Runtime.PythonEngine.Initialize(IEnumerable`1 args, Boolean setSysArgv, Boolean initSigs)
+   at Python.Runtime.PythonEngine.Initialize(Boolean setSysArgv, Boolean initSigs)
+   at Python.Runtime.PythonEngine.Initialize()
+   at QuantConnect.Python.PythonInitializer.Initialize(Boolean beginAllowThreads) in Common\Python\PythonInitializer.cs:line 56
+   at QuantConnect.AlgorithmFactory.Loader.TryCreatePythonAlgorithm(String assemblyPath, IAlgorithm& algorithmInstance, String& errorMessage) in AlgorithmFactory\Loader.cs:line 171
+2026-09-12T18:59:51.6817268Z ERROR:: Engine.Run():  QuantConnect.Lean.Engine.Setup.AlgorithmSetupException: During the algorithm initialization, the following exception has occurred: Loader.TryCreatePythonAlgorithm(): Unable to import python module D:\LeanT\IndianTradingSystem\src\lean_integration\trading_model_algorithm.py. Runtime.PythonDLL was not set or does not point to a supported Python runtime DLL. See pythonnet#embedding-python-in-net. Value of PythonDLL: null
+   at QuantConnect.Lean.Engine.Setup.BacktestingSetupHandler.CreateAlgorithmInstance(AlgorithmNodePacket algorithmNodePacket, String assemblyPath) in Engine\Setup\BacktestingSetupHandler.cs:line 113
+   at QuantConnect.Lean.Engine.Engine.Run(AlgorithmNodePacket job, AlgorithmManager manager, String assemblyPath, WorkerThread workerThread) in Engine\Engine.cs:line 125
+2026-09-12T18:59:51.6848493Z TRACE:: JOB HANDLERS:
+         DataFeed:             QuantConnect.Lean.Engine.DataFeeds.FileSystemDataFeed
+         Setup:                QuantConnect.Lean.Engine.Setup.ConsoleSetupHandler
+         RealTime:             QuantConnect.Lean.Engine.RealTime.BacktestingRealTimeHandler
+         Results:              QuantConnect.Lean.Engine.Results.BacktestingResultHandler
+         Transactions:         QuantConnect.Lean.Engine.TransactionHandlers.BacktestingTransactionHandler
+         Object Store:         QuantConnect.Lean.Engine.Storage.LocalObjectStore
+         History Provider:     
+         Brokerage:            
+         Data Provider:        QuantConnect.Lean.Engine.DataFeeds.DefaultDataProvider
+
+2026-09-12T18:59:51.6872781Z TRACE:: BacktestingResultHandler.Exit(): starting...
+2026-09-12T18:59:51.6887441Z TRACE:: BacktestingResultHandler.Exit(): Saving logs...
+2026-09-12T18:59:51.6944558Z TRACE:: StopSafely(): Waiting for 'Result Thread' thread to stop...
+2026-09-12T18:59:51.6960363Z ERROR:: Algorithm.Initialize() Error: During the algorithm initialization, the following exception has occurred: Loader.TryCreatePythonAlgorithm(): Unable to import python module D:\LeanT\IndianTradingSystem\src\lean_integration\trading_model_algorithm.py. Runtime.PythonDLL was not set or does not point to a supported Python runtime DLL. See https://github.com/pythonnet/pythonnet#embedding-python-in-net. Value of PythonDLL: null Stack Trace: During the algorithm initialization, the following exception has occurred: Loader.TryCreatePythonAlgorithm(): Unable to import python module D:\LeanT\IndianTradingSystem\src\lean_integration\trading_model_algorithm.py. Runtime.PythonDLL was not set or does not point to a supported Python runtime DLL. See https://github.com/pythonnet/pythonnet#embedding-python-in-net. Value of PythonDLL: null
+ During the algorithm initialization, the following exception has occurred: Loader.TryCreatePythonAlgorithm(): Unable to import python module D:\LeanT\IndianTradingSystem\src\lean_integration\trading_model_algorithm.py. Runtime.PythonDLL was not set or does not point to a supported Python runtime DLL. See https://github.com/pythonnet/pythonnet#embedding-python-in-net. Value of PythonDLL: null
+2026-09-12T18:59:51.6964642Z TRACE:: Debug: Your log was successfully created and can be retrieved from: results\TradingModelAlgorithm-log.txt
+2026-09-12T18:59:51.6965229Z TRACE:: BacktestingResultHandler.Run(): Ending Thread...
+2026-09-12T18:59:51.7236367Z TRACE:: BacktestingResultHandler.CreateResultSummary(): 'Strategy Equity' chart not found
+2026-09-12T18:59:51.9945482Z ERROR:: BacktestingResultHandler.SendFinalResult(): Error running backtest analysis System.NullReferenceException: Object reference not set to an instance of an object.
+   at QuantConnect.Lean.Engine.Results.Analysis.Analyses.ParameterCountAnalysis.Run(QCAlgorithm algorithm, Language language) in Engine\Results\Analysis\Analyses\ParameterCountAnalysis.cs:line 67
+   at QuantConnect.Lean.Engine.Results.Analysis.Analyses.ParameterCountAnalysis.Run(ResultsAnalysisRunParameters parameters) in Engine\Results\Analysis\Analyses\ParameterCountAnalysis.cs:line 45
+   at QuantConnect.Lean.Engine.Results.Analysis.ResultsAnalyzer.Run(Int32 timeLimitSeconds, Int32 maxFailedAnalyses) in Engine\Results\Analysis\ResultsAnalyzer.cs:line 248
+   at QuantConnect.Lean.Engine.Results.BacktestingResultHandler.SendFinalResult() in Engine\Results\BacktestingResultHandler.cs:line 434
+2026-09-12T18:59:52.0204196Z TRACE:: 
+STATISTICS:: OrderListHash d41d8cd98f00b204e9800998ecf8427e
+2026-09-12T18:59:52.0205198Z TRACE:: BacktestingResultHandler.SendAnalysisResult(): Processed final packet
+2026-09-12T18:59:52.0221148Z TRACE:: Engine.Run(): Disposing of setup handler...
+2026-09-12T18:59:52.0224216Z TRACE:: Engine.Main(): Analysis Completed and Results Posted.

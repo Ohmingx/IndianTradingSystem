@@ -1,0 +1,12 @@
+symbols:
+  - RELIANCE.NS
+  - TCS.NS
+  - INFY.NS
+  - HDFCBANK.NS
+  - ICICIBANK.NS
+start_date: '2015-01-01'
+end_date: '2023-12-31'
+resolution: daily
+auto_adjust: false # Explicit yfinance adjustment policy
+invalid_row_behavior: exclude # Options: fail, warn, exclude
+overwrite_existing: false

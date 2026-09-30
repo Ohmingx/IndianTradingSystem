@@ -1,0 +1,10 @@
+{
+  "environment": "backtesting",
+  "algorithm-type-name": "MinimalIndianAlgorithm",
+  "algorithm-language": "Python",
+  "algorithm-location": "TO_BE_REPLACED_BY_SCRIPT",
+  "data-folder": "../../../Data/",
+  "debugging": false,
+  "debugging-chain-invoke-exception": false,
+  "results-destination-folder": "results"
+}

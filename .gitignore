@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environment
+.venv/
+venv/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# pytest
+.pytest_cache/
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Large data files (tracked separately)
+# data/raw/
+# data/normalized/
+# data/equity/
+
+# Node (for future frontend)
+node_modules/

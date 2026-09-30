@@ -1,0 +1,10 @@
+﻿{
+    "environment":  "backtesting",
+    "algorithm-type-name":  "WiproSmaAlgorithm",
+    "algorithm-language":  "Python",
+    "algorithm-location":  "D:\\LeanT\\IndianTradingSystem\\src\\lean_integration\\wipro_sma_algorithm.py",
+    "data-folder":  "D:\\LeanT\\IndianTradingSystem\\data",
+    "debugging":  false,
+    "debugging-chain-invoke-exception":  false,
+    "results-destination-folder":  "results"
+}
